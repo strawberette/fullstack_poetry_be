@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^14.3.0",
+    "express": "^4.17.2",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.14.1"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js",
+    "start-container": "docker run --rm --name master32-mysql -dp 3306:3306 -v m32-mysql-config:/etc -v m32-mysql-data:/var/lib/mysql mysql/mysql-server:latest"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
