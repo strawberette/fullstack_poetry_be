@@ -16,7 +16,7 @@ const {
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(passport.initialize());
 app.use("/poems", poemsRouter);
 app.use("/user", userRouter);
