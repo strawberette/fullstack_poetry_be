@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
-
+const User = require("./user");
 const connection = require("../connection");
 
 const Poem = connection.define(
@@ -9,10 +9,7 @@ const Poem = connection.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    author: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+
     content: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -22,5 +19,6 @@ const Poem = connection.define(
     indexed: [{ unique: true, fields: ["title"] }],
   }
 );
+Poem.belongsTo(User);
 
 module.exports = Poem;

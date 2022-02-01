@@ -1,17 +1,24 @@
 const router = require("express").Router();
+const passport = require("passport");
+const session = { session: false };
 
 const Poem = require("../models/poem_structure");
 
-router.post("/", async (req, res) => {
+router.post("/", passport.authenticate("jwt", session), async (req, res) => {
+  if (req.user.id !== parseInt(req.body.userId)) {
+    return res
+      .status(403)
+      .json({ message: "You are not authorised to access this" });
+  }
   await Poem.create({
     title: req.body.title,
     content: req.body.content,
-    author: req.body.author,
+    UserId: req.body.userId,
   });
   res.status(201).json({
     title: req.body.title,
     content: req.body.content,
-    author: req.body.author,
+    UserId: req.body.userId,
   });
 });
 
@@ -25,30 +32,39 @@ router.get("/:id", async (req, res) => {
   res.status(200).json({ poem });
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", passport.authenticate("jwt", session), async (req, res) => {
+  let poem = await Poem.findOne({ where: { id: req.params.id } });
+  if (req.user.id !== poem.UserId) {
+    return res
+      .status(403)
+      .json({ message: "You are not authorised to access this" });
+  }
+
   await Poem.update(
     {
       title: req.body.title,
-      author: req.body.author,
       content: req.body.content,
     },
     { where: { id: req.params.id } }
   );
-  const poem = await Poem.findOne({ where: { id: req.params.id } });
+  poem = await Poem.findOne({ where: { id: req.params.id } });
   res.status(200).json({ poem });
 });
 
-router.delete("/:id", async (req, res) => {
-  const poem = await Poem.findOne({ where: { id: req.params.id } });
-  const deletedPoem = await poem.destroy();
-  console.log(deletedPoem);
-  res.status(200).json({ deletedPoem });
-});
-
-router.delete("/", async (req, res) => {
-  const deletedPoems = await Poem.destroy({ where: {} });
-  console.log(deletedPoems);
-  res.status(200).json({ msg: `${deletedPoems} poems deleted!` });
-});
+router.delete(
+  "/:id",
+  passport.authenticate("jwt", session),
+  async (req, res) => {
+    const poem = await Poem.findOne({ where: { id: req.params.id } });
+    if (req.user.id !== poem.UserId) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorised to access this" });
+    }
+    const deletedPoem = await poem.destroy();
+    console.log(deletedPoem);
+    res.status(200).json({ deletedPoem });
+  }
+);
 
 module.exports = router;
