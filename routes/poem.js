@@ -28,7 +28,9 @@ router.get("/", async (req, res) => {
     include: { model: User },
   });
   allPoems.map((p) => {
-    return (p.User.passwordHash = undefined);
+    if (p.User) {
+      return (p.User.passwordHash = undefined);
+    }
   });
   res.status(200).json(allPoems);
 });
@@ -41,7 +43,9 @@ router.get("/:id", async (req, res) => {
       where: { id: req.params.id },
     }
   );
-  poem.User.passwordHash = undefined;
+  if (poem.User) {
+    poem.User.passwordHash = undefined;
+  }
   res.status(200).json({ poem });
 });
 
