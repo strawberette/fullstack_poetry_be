@@ -27,7 +27,6 @@ passport.use(verifyStrategy);
 
 app.listen(process.env.PORT, () => {
   connection.authenticate();
-  Poem.sync({ alter: true });
-  User.sync({ alter: true });
+  connection.sync({ alter: true });
   console.log("App is online");
 });
