@@ -3,6 +3,7 @@ const passport = require("passport");
 const session = { session: false };
 
 const Poem = require("../models/poem_structure");
+const User = require("../models/user");
 
 router.post("/", passport.authenticate("jwt", session), async (req, res) => {
   if (req.user.id !== parseInt(req.body.userId)) {
@@ -23,12 +24,24 @@ router.post("/", passport.authenticate("jwt", session), async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  const allPoems = await Poem.findAll();
+  const allPoems = await Poem.findAll({
+    include: { model: User },
+  });
+  allPoems.map((p) => {
+    return (p.User.passwordHash = undefined);
+  });
   res.status(200).json(allPoems);
 });
 
 router.get("/:id", async (req, res) => {
-  const poem = await Poem.findOne({ where: { id: req.params.id } });
+  const poem = await Poem.findOne(
+    // { where: { id: req.params.id } },
+    {
+      include: { model: User },
+      where: { id: req.params.id },
+    }
+  );
+  poem.User.passwordHash = undefined;
   res.status(200).json({ poem });
 });
 
@@ -62,7 +75,6 @@ router.delete(
         .json({ message: "You are not authorised to access this" });
     }
     const deletedPoem = await poem.destroy();
-    console.log(deletedPoem);
     res.status(200).json({ deletedPoem });
   }
 );
